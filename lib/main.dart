@@ -1,5 +1,6 @@
 import 'package:dac_colour_contrast/results_container.dart';
 import 'package:dac_colour_contrast/web_view_container.dart';
+import 'package:eye_dropper/eye_dropper.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const MyHomePage(title: 'Colour Contrast'),
+      builder: (context, child) => EyeDropper(child: child!),
     );
   }
 }

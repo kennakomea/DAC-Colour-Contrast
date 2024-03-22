@@ -1,4 +1,5 @@
 import 'package:dac_colour_contrast/constants.dart';
+import 'package:eye_dropper/eye_dropper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
@@ -11,6 +12,7 @@ class ResultsContainer extends StatefulWidget {
 }
 
 class _ResultsContainerState extends State<ResultsContainer> {
+  Color? _color;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -55,11 +57,11 @@ class _ResultsContainerState extends State<ResultsContainer> {
               color: kPrimaryColor.withOpacity(0.5),
               thickness: 0.2,
             ),
-            const Row(
+             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 PickedColour(
-                  pickedColour: kPrimaryColor,
+                  pickedColour: _color ?? Colors.deepOrange,
                 ),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -80,7 +82,7 @@ class _ResultsContainerState extends State<ResultsContainer> {
                   ],
                 ),
                 PickedColour(
-                  pickedColour: Colors.deepOrange,
+                  pickedColour: _color ?? Colors.deepOrange,
                 ),
               ],
             ),
@@ -93,7 +95,13 @@ class _ResultsContainerState extends State<ResultsContainer> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       IconButton(
-                          onPressed: () => {},
+                          onPressed: () {
+                            EyeDropper.enableEyeDropper(context, (p0) {
+                              setState(() {
+                                _color = p0;
+                              });
+                            });
+                          },
                           icon: const Icon(Ionicons.eyedrop_outline)),
                       const Text(
                         'FG Picker',
