@@ -1,4 +1,7 @@
+import 'package:dac_colour_contrast/results_container.dart';
+import 'package:dac_colour_contrast/web_view_container.dart';
 import 'package:flutter/material.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 import 'constants.dart';
 
@@ -33,6 +36,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final String initialUrl = 'https://www.google.com';
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -154,9 +165,16 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      body: Container(
-        // Web view goes here
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      body: const Stack(
+          children: [
+            WebViewContainer(),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: ResultsContainer(),
+            ),
+          ]), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
