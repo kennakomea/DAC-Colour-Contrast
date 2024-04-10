@@ -272,6 +272,7 @@ class MyHomePage extends StatefulWidget {
               _progress = progress / 100;
             });
           },
+
         ),
         // Add a loading spinner
         if (_currentView == AppView.web && _progress < 1)

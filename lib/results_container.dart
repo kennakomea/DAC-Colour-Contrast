@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:dac_colour_contrast/constants.dart';
 import 'package:eye_dropper/eye_dropper.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:share_plus/share_plus.dart';
@@ -116,7 +117,6 @@ class _ResultsContainerState extends State<ResultsContainer> {
                   PickedColour(
                     icon: IconButton(
                         onPressed: () {
-                          //_setupColorPicker();
                           EyeDropper.enableEyeDropper(context, (color) {
                             setState(() {
                               _fgColor = color;
@@ -125,7 +125,13 @@ class _ResultsContainerState extends State<ResultsContainer> {
                         },
                         style: ButtonStyle(
                           backgroundColor:
-                              MaterialStateProperty.all(Colors.white),
+                          MaterialStateProperty.all(Colors.white),
+                          shape: MaterialStateProperty.all(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                side: const BorderSide(
+                                    color: kPrimaryColor, width: 2),
+                              )),
                         ),
                         icon: const Icon(Ionicons.eyedrop_outline)),
                     pickedColour: _fgColor ?? Colors.deepOrange,
@@ -169,6 +175,12 @@ class _ResultsContainerState extends State<ResultsContainer> {
                         style: ButtonStyle(
                           backgroundColor:
                               MaterialStateProperty.all(Colors.white),
+                          shape: MaterialStateProperty.all(
+                              RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                  side: const BorderSide(
+                                      color: kPrimaryColor, width: 2),
+                              )),
                         ),
                         icon: const Icon(Ionicons.eyedrop)),
                     pickedColour: _bgColor ?? Colors.deepOrange,
@@ -196,20 +208,52 @@ class WCAGTextResult extends StatelessWidget {
     // Define thresholds for WCAG compliance
     const double aaNormalTextThreshold = 4.5;
     const double aaLargeTextThreshold = 3.0;
+
     const double aaaNormalTextThreshold = 7.0;
     const double aaaLargeTextThreshold = 4.5;
 
-    String aaResult = contrastRatio >= aaNormalTextThreshold ? 'Pass (AA)' : 'Fail (AA)';
-    String aaaResult = contrastRatio >= aaaNormalTextThreshold ? 'Pass (AAA)' : 'Fail (AAA)';
+    bool isAANormalFail = contrastRatio < aaNormalTextThreshold;
+    bool isAAANormalFail = contrastRatio < aaaNormalTextThreshold;
 
-    return Column(
+    bool isAALargeFail = contrastRatio < aaLargeTextThreshold;
+    bool isAAALargeFail = contrastRatio < aaaLargeTextThreshold;
+
+
+    String aaNormalResult = isAANormalFail ? 'Fail (AA)' : 'Pass (AA)';
+    String aaaNormalResult = isAAANormalFail ? 'Fail (AAA)' : 'Pass (AAA)';
+
+    String aaLargeResult = isAALargeFail ? 'Fail (AA)' : 'Pass (AA)';
+    String aaaLargeResult = isAAALargeFail ? 'Fail (AAA)' : 'Pass (AAA)';
+
+    TextStyle failTextStyle = const TextStyle(color: Colors.red);
+    TextStyle passTextStyle = const TextStyle(color: Colors.green);
+
+    return Row(
       children: [
-        const Text(
-          'Text',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        Column(
+          children: [
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Normal',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+            ),
+            Text(aaNormalResult, style: isAANormalFail ? failTextStyle : passTextStyle),
+            Text(aaaNormalResult, style: isAAANormalFail ? failTextStyle : passTextStyle),
+          ],
         ),
-        Text(aaResult),
-        Text(aaaResult),
+        const SizedBox(width: 15),
+        Column(
+          children: [
+            const Text(
+              'Large',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+            Text(aaLargeResult, style: isAALargeFail ? failTextStyle : passTextStyle),
+            Text(aaaLargeResult, style: isAAALargeFail ? failTextStyle : passTextStyle),
+          ],
+        ),
       ],
     );
   }
