@@ -33,7 +33,7 @@ dependencies:
   eye_dropper: # This should be the actual package name
     git:
       url: git@github.com:Akomea/eye_dropper.git
-      ref: main  # Optional: branch, tag, or commit
+      ref: 2f58e5b  # Optional: branch, tag, or commit
 
 
   # The following adds the Cupertino Icons font to your application.
