@@ -71,7 +71,7 @@ class MyHomePage extends StatefulWidget {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Enter Web URL'),
+            title: const Text('Enter Web URL'),
             content: TextField(
               onChanged: (value) {
                 url = value;
@@ -80,7 +80,7 @@ class MyHomePage extends StatefulWidget {
             ),
             actions: <Widget>[
               ElevatedButton(
-                child: Text('Open'),
+                child: const Text('Open'),
                 onPressed: () {
                   _updateWebViewUrl(url);
                   Navigator.of(context).pop();
@@ -260,8 +260,16 @@ class MyHomePage extends StatefulWidget {
           InAppWebView(
           initialUrlRequest: URLRequest(url: Uri.parse(initialUrl?? 'https://www.pub.dev')),
           initialOptions: InAppWebViewGroupOptions(
+            ios: IOSInAppWebViewOptions(
+              dataDetectorTypes: [IOSWKDataDetectorTypes.ALL],
+              allowsLinkPreview: false,
+              isFraudulentWebsiteWarningEnabled: true,
+                disableInputAccessoryView: true,
+            ),
             crossPlatform: InAppWebViewOptions(
-              javaScriptEnabled: true,
+              preferredContentMode: UserPreferredContentMode.MOBILE,
+              disableVerticalScroll: true,
+              javaScriptEnabled: false,
             ),
           ),
           onWebViewCreated: (InAppWebViewController controller) {

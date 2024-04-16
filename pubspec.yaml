@@ -30,6 +30,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  eye_dropper: # This should be the actual package name
+    git:
+      url: git@github.com:Akomea/eye_dropper.git
+      ref: main  # Optional: branch, tag, or commit
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -37,7 +41,6 @@ dependencies:
   cupertino_icons: ^1.0.2
   ionicons: ^0.2.2
   flutter_inappwebview: ^5.8.0
-  eye_dropper: ^0.0.2
   image_picker: ^1.0.7
   share_plus: ^8.0.2
 

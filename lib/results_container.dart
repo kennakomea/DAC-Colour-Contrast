@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:dac_colour_contrast/constants.dart';
 import 'package:eye_dropper/eye_dropper.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:share_plus/share_plus.dart';
@@ -122,6 +121,7 @@ class _ResultsContainerState extends State<ResultsContainer> {
                               _fgColor = color;
                             });
                           });
+
                         },
                         style: ButtonStyle(
                           backgroundColor:
@@ -165,12 +165,12 @@ class _ResultsContainerState extends State<ResultsContainer> {
                   PickedColour(
                     icon: IconButton(
                         onPressed: () {
-                          //_setupColorPicker();
                           EyeDropper.enableEyeDropper(context, (color) {
                             setState(() {
                               _bgColor = color;
                             });
                           });
+
                         },
                         style: ButtonStyle(
                           backgroundColor:
