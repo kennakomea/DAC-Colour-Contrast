@@ -3,7 +3,9 @@ import 'dart:math';
 import 'package:dac_colour_contrast/app_provider.dart';
 import 'package:dac_colour_contrast/constants.dart';
 import 'package:eye_dropper/eye_dropper.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -70,7 +72,6 @@ class _ResultsContainerState extends State<ResultsContainer> {
   @override
   Widget build(BuildContext context) {
     AppProvider appProvider = Provider.of<AppProvider>(context, listen: false);
-    //print('color: $_color');
     return Container(
         height:
             MediaQuery.sizeOf(context).height * 0.3, // 40% of the screen height
@@ -113,37 +114,39 @@ class _ResultsContainerState extends State<ResultsContainer> {
               thickness: 0.2,
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 10.0),
+              padding: EdgeInsets.only(top: MediaQuery.of(context).size.width * 0.02),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  PickedColour(
-                    icon: IconButton(
-                        onPressed: () {
-                          appProvider.isEyeDropperVisible = true;
-                          EyeDropper.enableEyeDropper(context, (color) {
-                            setState(() {
-                              _fgColor = color;
+                  Expanded(
+                    child: PickedColour(
+                      icon: IconButton(
+                          onPressed: () {
+                            appProvider.isEyeDropperVisible = true;
+                            EyeDropper.enableEyeDropper(context, (color) {
+                              setState(() {
+                                _fgColor = color;
+                              });
+                              appProvider.isEyeDropperVisible = false;
                             });
-                            appProvider.isEyeDropperVisible = false;
-                          });
-                        },
-                        style: ButtonStyle(
-                          backgroundColor:
-                          MaterialStateProperty.all(Colors.white),
-                          shape: MaterialStateProperty.all(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                                side: const BorderSide(
-                                    color: kPrimaryColor, width: 2),
-                              )),
-                        ),
-                        icon: const Icon(Ionicons.eyedrop_outline)),
-                    pickedColour: _fgColor ?? Colors.deepOrange,
-                    hexCode: _fgColor != null
-                        ? '#${_fgColor?.value.toRadixString(16)}'
-                        : 'N/A',
-                    label: 'FG Colour',
+                          },
+                          style: ButtonStyle(
+                            backgroundColor:
+                            MaterialStateProperty.all(Colors.white),
+                            shape: MaterialStateProperty.all(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                  side: const BorderSide(
+                                      color: kPrimaryColor, width: 2),
+                                )),
+                          ),
+                          icon: const Icon(Ionicons.eyedrop_outline)),
+                      pickedColour: _fgColor ?? Colors.deepOrange,
+                      hexCode: _fgColor != null
+                          ? '#${_fgColor?.value.toRadixString(16)}'
+                          : 'N/A',
+                      label: 'FG Colour',
+                    ),
                   ),
                    Column(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -167,32 +170,34 @@ class _ResultsContainerState extends State<ResultsContainer> {
                       ),
                     ],
                   ),
-                  PickedColour(
-                    icon: IconButton(
-                        onPressed: () {
-                          EyeDropper.enableEyeDropper(context, (color) {
-                            setState(() {
-                              _bgColor = color;
+                  Expanded(
+                    child: PickedColour(
+                      icon: IconButton(
+                          onPressed: () {
+                            EyeDropper.enableEyeDropper(context, (color) {
+                              setState(() {
+                                _bgColor = color;
+                              });
                             });
-                          });
 
-                        },
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all(Colors.white),
-                          shape: MaterialStateProperty.all(
-                              RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  side: const BorderSide(
-                                      color: kPrimaryColor, width: 2),
-                              )),
-                        ),
-                        icon: const Icon(Ionicons.eyedrop)),
-                    pickedColour: _bgColor ?? Colors.deepOrange,
-                    hexCode: _bgColor != null
-                        ? '#${_bgColor?.value.toRadixString(16)}'
-                        : 'N/A',
-                    label: 'BG Colour',
+                          },
+                          style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.all(Colors.white),
+                            shape: MaterialStateProperty.all(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                    side: const BorderSide(
+                                        color: kPrimaryColor, width: 2),
+                                )),
+                          ),
+                          icon: const Icon(Ionicons.eyedrop)),
+                      pickedColour: _bgColor ?? Colors.deepOrange,
+                      hexCode: _bgColor != null
+                          ? '#${_bgColor?.value.toRadixString(16)}'
+                          : 'N/A',
+                      label: 'BG Colour',
+                    ),
                   ),
                 ],
               ),
@@ -236,9 +241,11 @@ class WCAGTextResult extends StatelessWidget {
     return Row(
       children: [
         Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Align(
-              alignment: Alignment.centerLeft,
+              alignment: Alignment.center,
               child: Text(
                 'Normal',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
@@ -251,9 +258,12 @@ class WCAGTextResult extends StatelessWidget {
         const SizedBox(width: 15),
         Column(
           children: [
-            const Text(
-              'Large',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            const Align(
+              alignment: Alignment.center,
+              child: Text(
+                'Large',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
             ),
             Text(aaLargeResult, style: isAALargeFail ? failTextStyle : passTextStyle),
             Text(aaaLargeResult, style: isAAALargeFail ? failTextStyle : passTextStyle),
@@ -282,13 +292,13 @@ class PickedColour extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(10.0),
+      padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.01),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Container(
-              height: 70,
-              width: 70,
+              height: MediaQuery.of(context).size.height * 0.08,
+              width: MediaQuery.of(context).size.width * 0.18,
               decoration: BoxDecoration(
                 color: pickedColour,
                 border: Border.all(color: kPrimaryColor, width: 2),

@@ -30,6 +30,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => AppProvider()),],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Colour Contrast',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF234b6e)),

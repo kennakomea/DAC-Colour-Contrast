@@ -52,7 +52,6 @@ class MyHomePage extends StatefulWidget {
       }
     }
 
-
     void _pickImageFromGallery() async {
       final ImagePicker _picker = ImagePicker();
       final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
@@ -202,7 +201,7 @@ class MyHomePage extends StatefulWidget {
                     style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                   const Text(
-                    'v1.0.0 (1)',
+                    'v1.2.2',
                     style: TextStyle(color: Colors.white),
                   ),
                 ],
