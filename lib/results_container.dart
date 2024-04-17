@@ -1,9 +1,11 @@
 import 'dart:math';
 
+import 'package:dac_colour_contrast/app_provider.dart';
 import 'package:dac_colour_contrast/constants.dart';
 import 'package:eye_dropper/eye_dropper.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 class ResultsContainer extends StatefulWidget {
@@ -67,10 +69,12 @@ class _ResultsContainerState extends State<ResultsContainer> {
 
   @override
   Widget build(BuildContext context) {
+    AppProvider appProvider = Provider.of<AppProvider>(context, listen: false);
     //print('color: $_color');
     return Container(
         height:
             MediaQuery.sizeOf(context).height * 0.3, // 40% of the screen height
+        width: MediaQuery.sizeOf(context).width,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: const BorderRadius.only(
@@ -116,12 +120,13 @@ class _ResultsContainerState extends State<ResultsContainer> {
                   PickedColour(
                     icon: IconButton(
                         onPressed: () {
+                          appProvider.isEyeDropperVisible = true;
                           EyeDropper.enableEyeDropper(context, (color) {
                             setState(() {
                               _fgColor = color;
                             });
+                            appProvider.isEyeDropperVisible = false;
                           });
-
                         },
                         style: ButtonStyle(
                           backgroundColor:

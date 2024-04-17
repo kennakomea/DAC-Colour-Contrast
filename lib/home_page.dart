@@ -4,10 +4,12 @@ import 'package:dac_colour_contrast/web_view_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'dart:io';
+import 'app_provider.dart';
 import 'constants.dart';
 
-enum AppView { web, camera, gallery }
+enum AppView { web, camera, gallery, home }
 
 
 class MyHomePage extends StatefulWidget {
@@ -103,12 +105,11 @@ class MyHomePage extends StatefulWidget {
       }
     }
 
-
-
     @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.primary,
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
@@ -258,17 +259,11 @@ class MyHomePage extends StatefulWidget {
           Center(child: Image.file(_selectedImage!)),
         if (_currentView == AppView.web)
           InAppWebView(
-          initialUrlRequest: URLRequest(url: Uri.parse(initialUrl?? 'https://www.pub.dev')),
+          initialUrlRequest: URLRequest(url: Uri.parse(initialUrl?? 'https://digitalaccessibilitytraining.org/catalogue')),
           initialOptions: InAppWebViewGroupOptions(
-            ios: IOSInAppWebViewOptions(
-              dataDetectorTypes: [IOSWKDataDetectorTypes.ALL],
-              allowsLinkPreview: false,
-              isFraudulentWebsiteWarningEnabled: true,
-                disableInputAccessoryView: true,
-            ),
             crossPlatform: InAppWebViewOptions(
               preferredContentMode: UserPreferredContentMode.MOBILE,
-              disableVerticalScroll: true,
+              disableVerticalScroll: Provider.of<AppProvider>(context, listen: false).isEyeDropperVisible,
               javaScriptEnabled: false,
             ),
           ),
