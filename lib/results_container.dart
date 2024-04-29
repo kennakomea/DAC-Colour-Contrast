@@ -21,6 +21,8 @@ class _ResultsContainerState extends State<ResultsContainer> {
   Color? _fgColor;
   Color? _bgColor;
 
+  bool isExpanded = false;
+
   @override
   void initState() {
     super.initState();
@@ -67,146 +69,181 @@ class _ResultsContainerState extends State<ResultsContainer> {
     }
   }
 
+  void toggleExpansion() {
+    setState(() {
+      isExpanded = !isExpanded;
+    });
+  }
+
 
 
   @override
   Widget build(BuildContext context) {
-    AppProvider appProvider = Provider.of<AppProvider>(context, listen: false);
-    return Container(
-        height:
-            MediaQuery.sizeOf(context).height * 0.3, // 40% of the screen height
-        width: MediaQuery.sizeOf(context).width,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: const Offset(2, 3), // changes position of shadow
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const SizedBox(width: 30), // Padding
-                const Text(
-                  'Results',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                      color: kPrimaryColor),
-                ),
-                IconButton(
-                    onPressed: _shareResults,
-                    icon: const Icon(Icons.share_rounded)),
-              ],
-            ),
-            Divider(
-              color: kPrimaryColor.withOpacity(0.5),
-              thickness: 0.2,
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: MediaQuery.of(context).size.width * 0.02),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: PickedColour(
-                      icon: IconButton(
-                          onPressed: () {
-                            appProvider.isEyeDropperVisible = true;
-                            EyeDropper.enableEyeDropper(context, (color) {
-                              setState(() {
-                                _fgColor = color;
-                              });
-                              appProvider.isEyeDropperVisible = false;
-                            });
-                          },
-                          style: ButtonStyle(
-                            backgroundColor:
-                            MaterialStateProperty.all(Colors.white),
-                            shape: MaterialStateProperty.all(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  side: const BorderSide(
-                                      color: kPrimaryColor, width: 2),
-                                )),
-                          ),
-                          icon: const Icon(Ionicons.eyedrop_outline)),
-                      pickedColour: _fgColor ?? Colors.deepOrange,
-                      hexCode: _fgColor != null
-                          ? '#${_fgColor?.value.toRadixString(16)}'
-                          : 'N/A',
-                      label: 'FG Colour',
-                    ),
+    AppProvider appProvider = Provider.of<AppProvider>(context, listen: true);
+
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.4,
+      width: MediaQuery.of(context).size.width,
+      child: DraggableScrollableSheet(
+          initialChildSize: isExpanded? 1: 0.2, // 40% of the screen height // Initial height as a fraction of the screen height
+          minChildSize: isExpanded? 1 : 0.2, // Minimum height as a fraction of the screen height
+          maxChildSize: isExpanded? 1 : 0.7, // Maximum height as a fraction of the screen height
+          builder: (context, scrollController) {
+            return Container(
+                width: MediaQuery
+                    .sizeOf(context)
+                    .width,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
                   ),
-                   Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: const Offset(2, 3), // changes position of shadow
+                    ),
+                  ],
+                ),
+                child: SingleChildScrollView(
+                  controller: scrollController,
+                  child: Column(
                     children: [
-                      Text(
-                        _fgColor != null && _bgColor != null
-                            ? '${_calculateContrastRatio(_fgColor!, _bgColor!).toStringAsFixed(2)}:1'
-                            : 'N/A',
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 26),
-                      ),
-                      const SizedBox(height: 10),
-                       Row(
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _fgColor != null && _bgColor != null
-                              ? WCAGTextResult(contrastRatio: _calculateContrastRatio(_fgColor!, _bgColor!))
-                              : const WCAGTextResult(contrastRatio: 0),
-                          const SizedBox(width: 15),
+                          // expand draggable sheet button
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: TextButton.icon(
+                              onPressed: toggleExpansion,
+                              icon: Icon(isExpanded ? Icons.expand_more : Icons.expand_less),
+                              label: Text(isExpanded ? 'Collapse' : 'Expand'),
+                            ),
+                          ),
+                          const Text(
+                            'Results',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                                color: kPrimaryColor),
+                          ),
+                          IconButton(
+                              onPressed: _shareResults,
+                              icon: const Icon(Icons.share_rounded)),
                         ],
                       ),
+                      Divider(
+                        color: kPrimaryColor.withOpacity(0.5),
+                        thickness: 0.2,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(top: MediaQuery
+                            .of(context)
+                            .size
+                            .width * 0.02),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: PickedColour(
+                                icon: IconButton(
+                                    onPressed: () {
+                                      appProvider.isEyeDropperVisible = true;
+                                      EyeDropper.enableEyeDropper(context, (color) {
+                                        setState(() {
+                                          _fgColor = color;
+                                        });
+                                        appProvider.isEyeDropperVisible = false;
+                                      });
+                                    },
+                                    style: ButtonStyle(
+                                      backgroundColor:
+                                      MaterialStateProperty.all(Colors.white),
+                                      shape: MaterialStateProperty.all(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(20),
+                                            side: const BorderSide(
+                                                color: kPrimaryColor, width: 2),
+                                          )),
+                                    ),
+                                    icon: const Icon(Ionicons.eyedrop_outline)),
+                                pickedColour: _fgColor ?? Colors.deepOrange,
+                                hexCode: _fgColor != null
+                                    ? '#${_fgColor?.value.toRadixString(16)}'
+                                    : 'N/A',
+                                label: 'FG Colour',
+                              ),
+                            ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  _fgColor != null && _bgColor != null
+                                      ? '${_calculateContrastRatio(
+                                      _fgColor!, _bgColor!).toStringAsFixed(2)}:1'
+                                      : 'N/A',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold, fontSize: 26),
+                                ),
+                                const SizedBox(height: 10),
+                                Row(
+                                  children: [
+                                    _fgColor != null && _bgColor != null
+                                        ? WCAGTextResult(
+                                        contrastRatio: _calculateContrastRatio(
+                                            _fgColor!, _bgColor!))
+                                        : const WCAGTextResult(contrastRatio: 0),
+                                    const SizedBox(width: 15),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            Expanded(
+                              child: PickedColour(
+                                icon: IconButton(
+                                    onPressed: () {
+                                      appProvider.isEyeDropperVisible = true;
+                                      EyeDropper.enableEyeDropper(context, (color) {
+                                        setState(() {
+                                          _bgColor = color;
+                                        });
+                                        appProvider.isEyeDropperVisible = false;
+                                      });
+                                    },
+                                    style: ButtonStyle(
+                                      backgroundColor:
+                                      MaterialStateProperty.all(Colors.white),
+                                      shape: MaterialStateProperty.all(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(20),
+                                            side: const BorderSide(
+                                                color: kPrimaryColor, width: 2),
+                                          )),
+                                    ),
+                                    icon: const Icon(Ionicons.eyedrop)),
+                                pickedColour: _bgColor ?? Colors.deepOrange,
+                                hexCode: _bgColor != null
+                                    ? '#${_bgColor?.value.toRadixString(16)}'
+                                    : 'N/A',
+                                label: 'BG Colour',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 10),
                     ],
                   ),
-                  Expanded(
-                    child: PickedColour(
-                      icon: IconButton(
-                          onPressed: () {
-                            EyeDropper.enableEyeDropper(context, (color) {
-                              setState(() {
-                                _bgColor = color;
-                              });
-                            });
-
-                          },
-                          style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all(Colors.white),
-                            shape: MaterialStateProperty.all(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                    side: const BorderSide(
-                                        color: kPrimaryColor, width: 2),
-                                )),
-                          ),
-                          icon: const Icon(Ionicons.eyedrop)),
-                      pickedColour: _bgColor ?? Colors.deepOrange,
-                      hexCode: _bgColor != null
-                          ? '#${_bgColor?.value.toRadixString(16)}'
-                          : 'N/A',
-                      label: 'BG Colour',
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
-          ],
-        ));
+                ));
+          }),
+    );
   }
-}
+  }
 
 class WCAGTextResult extends StatelessWidget {
   final double contrastRatio;

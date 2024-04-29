@@ -1,10 +1,13 @@
 
+import 'package:dac_colour_contrast/help.dart';
 import 'package:dac_colour_contrast/results_container.dart';
+import 'package:dac_colour_contrast/send_feedback.dart';
 import 'package:dac_colour_contrast/web_view_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'dart:io';
 import 'app_provider.dart';
 import 'constants.dart';
@@ -23,7 +26,7 @@ class MyHomePage extends StatefulWidget {
 }
   class _MyHomePageState extends State<MyHomePage> {
     AppView _currentView = AppView.web;
-    WebViewContainer webViewContainer = WebViewContainer();
+    WebViewContainer webViewContainer = const WebViewContainer();
     Key webViewContainerKey = UniqueKey();
     File? _selectedImage;
     InAppWebViewController? _controller;
@@ -31,10 +34,20 @@ class MyHomePage extends StatefulWidget {
     String? initialUrl;
 
     @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
+    void initState() {
+      super.initState();
+      var appProvider = Provider.of<AppProvider>(context, listen: false);
+      appProvider.addListener(() {
+        if (_controller != null) {
+          _controller!.setOptions(options: InAppWebViewGroupOptions(
+            crossPlatform: InAppWebViewOptions(
+              disableVerticalScroll: appProvider.isEyeDropperVisible,
+            ),
+          ));
+        }
+      });
+    }
+
 
     void _pickImageFromCamera() async {
       final ImagePicker _picker = ImagePicker();
@@ -46,7 +59,7 @@ class MyHomePage extends StatefulWidget {
           // Update the current view
           _currentView = AppView.camera;
           // Reset WebView
-          webViewContainer = WebViewContainer();
+          webViewContainer = const WebViewContainer();
           webViewContainerKey = UniqueKey();
         });
       }
@@ -60,7 +73,7 @@ class MyHomePage extends StatefulWidget {
         setState(() {
           _selectedImage = File(image.path);
           // If you want to replace the WebViewContainer, reset its state
-          webViewContainer = WebViewContainer();
+          webViewContainer = const WebViewContainer();
           webViewContainerKey = UniqueKey();
         });
       }
@@ -106,6 +119,8 @@ class MyHomePage extends StatefulWidget {
 
     @override
   Widget build(BuildContext context) {
+      bool check = Provider.of<AppProvider>(context, listen: true).isEyeDropperVisible;
+      debugPrint('isEyeDropperVisible******: $check');
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -212,6 +227,11 @@ class MyHomePage extends StatefulWidget {
               title: const Text('Help'),
               onTap: () {
                 Navigator.pop(context);
+                // Navigate to the second screen using a named route.
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  HelpScreen()),
+                );
               },
             ),
             ListTile(
@@ -219,6 +239,10 @@ class MyHomePage extends StatefulWidget {
               title: const Text('Send Feedback'),
               onTap: () {
                 Navigator.pop(context);
+                // Navigate to the second screen using a named route.
+                 Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  RequestFeatureScreen()));
               },
             ),
             const Divider(
@@ -230,6 +254,7 @@ class MyHomePage extends StatefulWidget {
               title: const Text('WCAG 2.2'),
               onTap: () {
                 Navigator.pop(context);
+                _launchURL('https://www.w3.org/WAI/WCAG22/quickref/');
               },
             ),
             ListTile(
@@ -237,18 +262,12 @@ class MyHomePage extends StatefulWidget {
               title: const Text('Visit Our E-learning Platform'),
               onTap: () {
                 Navigator.pop(context);
+                _launchURL('https://digitalaccessibilitytraining.org/catalogue');
               },
             ),
             const Divider(
               color: Colors.grey,
               thickness: 0.3,
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
-              onTap: () {
-                Navigator.pop(context);
-              },
             ),
           ],
         ),
@@ -262,7 +281,7 @@ class MyHomePage extends StatefulWidget {
           initialOptions: InAppWebViewGroupOptions(
             crossPlatform: InAppWebViewOptions(
               preferredContentMode: UserPreferredContentMode.MOBILE,
-              disableVerticalScroll: Provider.of<AppProvider>(context, listen: false).isEyeDropperVisible,
+              disableVerticalScroll: check,
               javaScriptEnabled: false,
             ),
           ),
@@ -274,7 +293,6 @@ class MyHomePage extends StatefulWidget {
               _progress = progress / 100;
             });
           },
-
         ),
         // Add a loading spinner
         if (_currentView == AppView.web && _progress < 1)
@@ -290,11 +308,15 @@ class MyHomePage extends StatefulWidget {
             bottom: 0,
             left: 0,
             right: 0,
-            child: ResultsContainer(
-            ),
+            child: ResultsContainer(),
           )
-
       ]),
     );
   }
+    _launchURL(String address) async {
+      final Uri url = Uri.parse(address);
+      if (!await launchUrl(url)) {
+        throw Exception('Could not launch $url');
+      }
+    }
 }
