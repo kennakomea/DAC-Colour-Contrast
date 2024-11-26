@@ -85,8 +85,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "2f58e5b"
-      resolved-ref: "2f58e5b6cb7ed50d812204942faabdc57277bb46"
+      ref: "9bb1e2c"
+      resolved-ref: "9bb1e2cbdce2c5ad85e43b1a1f6c0a01ba10cb74"
       url: "git@github.com:Akomea/eye_dropper.git"
     source: git
     version: "0.0.1"

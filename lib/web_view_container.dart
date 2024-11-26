@@ -37,6 +37,7 @@ class _WebViewContainerState extends State<WebViewContainer> {
         initialUrlRequest: URLRequest(url: Uri.parse(url)),
         initialOptions: InAppWebViewGroupOptions(
           crossPlatform: InAppWebViewOptions(
+
             javaScriptEnabled: true,
           ),
         ),

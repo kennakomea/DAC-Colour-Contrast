@@ -1,7 +1,7 @@
-
 import 'package:dac_colour_contrast/help.dart';
 import 'package:dac_colour_contrast/results_container.dart';
 import 'package:dac_colour_contrast/send_feedback.dart';
+import 'package:dac_colour_contrast/suggestions.dart';
 import 'package:dac_colour_contrast/web_view_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -14,7 +14,6 @@ import 'constants.dart';
 
 enum AppView { web, camera, gallery, home }
 
-
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
@@ -22,112 +21,149 @@ class MyHomePage extends StatefulWidget {
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
-
 }
-  class _MyHomePageState extends State<MyHomePage> {
-    AppView _currentView = AppView.web;
-    WebViewContainer webViewContainer = const WebViewContainer();
-    Key webViewContainerKey = UniqueKey();
-    File? _selectedImage;
-    InAppWebViewController? _controller;
-    double _progress = 0;
-    String? initialUrl;
 
-    @override
-    void initState() {
-      super.initState();
-      var appProvider = Provider.of<AppProvider>(context, listen: false);
-      appProvider.addListener(() {
-        if (_controller != null) {
-          _controller!.setOptions(options: InAppWebViewGroupOptions(
-            crossPlatform: InAppWebViewOptions(
-              disableVerticalScroll: appProvider.isEyeDropperVisible,
-            ),
-          ));
-        }
+class _MyHomePageState extends State<MyHomePage> {
+  AppView _currentView = AppView.web;
+  WebViewContainer webViewContainer = const WebViewContainer();
+  Key webViewContainerKey = UniqueKey();
+  File? _selectedImage;
+  InAppWebViewController? _controller;
+  double _progress = 0;
+  String? initialUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    var appProvider = Provider.of<AppProvider>(context, listen: false);
+    appProvider.addListener(() {
+      if (_controller != null) {
+        _controller!.setOptions(
+            options: InAppWebViewGroupOptions(
+          crossPlatform: InAppWebViewOptions(
+            disableVerticalScroll: appProvider.isEyeDropperVisible,
+          ),
+        ));
+      }
+    });
+  }
+
+  void _pickImageFromCamera() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+
+    if (image != null) {
+      setState(() {
+        _selectedImage = File(image.path);
+        // Update the current view
+        _currentView = AppView.camera;
+        // Reset WebView
+        webViewContainer = const WebViewContainer();
+        webViewContainerKey = UniqueKey();
       });
     }
+  }
 
+  void _pickImageFromGallery() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
-    void _pickImageFromCamera() async {
-      final ImagePicker _picker = ImagePicker();
-      final XFile? image = await _picker.pickImage(source: ImageSource.camera);
-
-      if (image != null) {
-        setState(() {
-          _selectedImage = File(image.path);
-          // Update the current view
-          _currentView = AppView.camera;
-          // Reset WebView
-          webViewContainer = const WebViewContainer();
-          webViewContainerKey = UniqueKey();
-        });
-      }
+    if (image != null) {
+      setState(() {
+        _selectedImage = File(image.path);
+        // If you want to replace the WebViewContainer, reset its state
+        webViewContainer = const WebViewContainer();
+        webViewContainerKey = UniqueKey();
+      });
     }
+  }
 
-    void _pickImageFromGallery() async {
-      final ImagePicker _picker = ImagePicker();
-      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-
-      if (image != null) {
-        setState(() {
-          _selectedImage = File(image.path);
-          // If you want to replace the WebViewContainer, reset its state
-          webViewContainer = const WebViewContainer();
-          webViewContainerKey = UniqueKey();
-        });
-      }
-    }
-
-    void _showUrlInputDialog() {
-      String url = '';
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Enter Web URL'),
-            content: TextField(
-              onChanged: (value) {
-                url = value;
-              },
-              decoration: const InputDecoration(hintText: "https://example.com"),
-            ),
-            actions: <Widget>[
-              ElevatedButton(
-                child: const Text('Open'),
-                onPressed: () {
-                  _updateWebViewUrl(url);
+  void _showUrlInputDialog() {
+    String url = '';
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Enter Web URL'),
+          content: TextField(
+            onChanged: (value) {
+              url = value;
+            },
+            decoration: const InputDecoration(hintText: "example.com"),
+          ),
+          actions: <Widget>[
+            ElevatedButton(
+              child: const Text('Open'),
+              onPressed: () {
+                // Normalizing and validating URL before opening
+                final normalizedUrl = _normalizeUrl(url);
+                if (_validateUrl(normalizedUrl)) {
+                  _updateWebViewUrl(normalizedUrl);
                   Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
+                } else {
+                  // Show error message if URL is invalid
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Invalid URL, please enter a valid URL.')),
+                  );
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+// Normalizes a URL by checking and possibly adding protocol
+  String _normalizeUrl(String url) {
+    // Trim whitespace
+    url = url.trim();
+    // Add 'https://' if no protocol is specified
+    if (!url.contains('://')) {
+      url = 'https://$url';
+    }
+    return url;
+  }
+
+// Validates a URL
+  bool _validateUrl(String url) {
+    // Parse the URL
+    final uri = Uri.tryParse(url);
+    if (uri == null || (!uri.hasScheme && (uri.scheme != 'http' && uri.scheme != 'https'))) {
+      return false;
     }
 
-    void _updateWebViewUrl(String url) {
-      if (_controller != null) {
-        _controller!.loadUrl(urlRequest: URLRequest(url: Uri.parse(url)));
-      } else {
-        // If the controller is not yet initialized, update the initial URL
-        setState(() {
-          initialUrl = url;
-        });
-      }
-    }
+    // Ensure URL has a valid domain
+    final domainPattern = RegExp(r'^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$');
+    return domainPattern.hasMatch(uri.host);
+  }
 
-    @override
+
+  void _updateWebViewUrl(String url) {
+    if (_controller != null) {
+      _controller!.loadUrl(urlRequest: URLRequest(url: Uri.parse(url)));
+    } else {
+      // If the controller is not yet initialized, update the initial URL
+      setState(() {
+        initialUrl = url;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-      bool check = Provider.of<AppProvider>(context, listen: true).isEyeDropperVisible;
-      debugPrint('isEyeDropperVisible******: $check');
+    bool check =
+        Provider.of<AppProvider>(context, listen: true).isEyeDropperVisible;
+    debugPrint('isEyeDropperVisible******: $check');
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.primary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+        title: Text(
+          widget.title,
+          style:
+              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
         actions: [
           PopupMenuButton<String>(
             elevation: 1,
@@ -141,29 +177,29 @@ class MyHomePage extends StatefulWidget {
                 borderRadius: BorderRadius.all(Radius.circular(10))),
             offset: const Offset(0, 50),
             onSelected: (String result) {
-                switch (result) {
-                  case 'Web URL':
-                    _showUrlInputDialog();
-                    setState(() {
-                      _currentView = AppView.web;
-                    });
-                    break;
-                  case 'Camera':
-                    _pickImageFromCamera();
-                    setState(() {
-                      _currentView = AppView.camera;
-                    });
-                    break;
-                  case 'Gallery':
-                    _pickImageFromGallery();
-                    setState(() {
-                      _currentView = AppView.gallery;
-                    });
-                    break;
-                }
+              switch (result) {
+                case 'Web URL':
+                  _showUrlInputDialog();
+                  setState(() {
+                    _currentView = AppView.web;
+                  });
+                  break;
+                case 'Camera':
+                  _pickImageFromCamera();
+                  setState(() {
+                    _currentView = AppView.camera;
+                  });
+                  break;
+                case 'Gallery':
+                  _pickImageFromGallery();
+                  setState(() {
+                    _currentView = AppView.gallery;
+                  });
+                  break;
+              }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-               const PopupMenuItem<String>(
+              const PopupMenuItem<String>(
                 value: 'Web URL',
                 child: Row(
                   children: [
@@ -173,7 +209,7 @@ class MyHomePage extends StatefulWidget {
                   ],
                 ),
               ),
-               const PopupMenuItem<String>(
+              const PopupMenuItem<String>(
                 value: 'Camera',
                 child: Row(
                   children: [
@@ -183,7 +219,7 @@ class MyHomePage extends StatefulWidget {
                   ],
                 ),
               ),
-               const PopupMenuItem<String>(
+              const PopupMenuItem<String>(
                 value: 'Gallery',
                 child: Row(
                   children: [
@@ -194,7 +230,8 @@ class MyHomePage extends StatefulWidget {
                 ),
               ),
             ],
-          ),],
+          ),
+        ],
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       drawer: Drawer(
@@ -206,17 +243,26 @@ class MyHomePage extends StatefulWidget {
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.primary,
               ),
-              child:  Column(
+              child: Column(
                 children: [
                   Image.asset(
-                    'assets/images/logo_dark.png', fit: BoxFit.contain, height: 100, width: 180,
+                    semanticLabel: 'Colour Contrast Logo',
+                    'assets/images/logo_dark.png',
+                    fit: BoxFit.contain,
+                    height: 100,
+                    width: 180,
                   ),
                   const Text(
+                    semanticsLabel: 'Colour Contrast',
                     'Colour Contrast',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16),
                   ),
                   const Text(
-                    'v1.2.2',
+                    semanticsLabel: 'App version 1.2.7',
+                    'v1.2.7',
                     style: TextStyle(color: Colors.white),
                   ),
                 ],
@@ -224,13 +270,16 @@ class MyHomePage extends StatefulWidget {
             ),
             ListTile(
               leading: const Icon(Icons.help),
-              title: const Text('Help'),
+              title: const Text(
+                  'Help',
+                semanticsLabel: 'Help',
+              ),
               onTap: () {
                 Navigator.pop(context);
                 // Navigate to the second screen using a named route.
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) =>  HelpScreen()),
+                  MaterialPageRoute(builder: (context) => HelpScreen()),
                 );
               },
             ),
@@ -240,9 +289,10 @@ class MyHomePage extends StatefulWidget {
               onTap: () {
                 Navigator.pop(context);
                 // Navigate to the second screen using a named route.
-                 Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) =>  RequestFeatureScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => RequestFeatureScreen()));
               },
             ),
             const Divider(
@@ -262,7 +312,8 @@ class MyHomePage extends StatefulWidget {
               title: const Text('Visit Our E-learning Platform'),
               onTap: () {
                 Navigator.pop(context);
-                _launchURL('https://digitalaccessibilitytraining.org/catalogue');
+                _launchURL(
+                    'https://digitalaccessibilitytraining.org/catalogue');
               },
             ),
             const Divider(
@@ -273,27 +324,33 @@ class MyHomePage extends StatefulWidget {
         ),
       ),
       body: Stack(children: [
-        if ((_currentView == AppView.gallery || _currentView == AppView.camera) && _selectedImage != null)
+        if ((_currentView == AppView.gallery ||
+                _currentView == AppView.camera) &&
+            _selectedImage != null)
           Center(child: Image.file(_selectedImage!)),
         if (_currentView == AppView.web)
           InAppWebView(
-          initialUrlRequest: URLRequest(url: Uri.parse(initialUrl?? 'https://digitalaccessibilitytraining.org/catalogue')),
-          initialOptions: InAppWebViewGroupOptions(
-            crossPlatform: InAppWebViewOptions(
-              preferredContentMode: UserPreferredContentMode.MOBILE,
-              disableVerticalScroll: check,
-              javaScriptEnabled: false,
+            initialUrlRequest: URLRequest(
+                url: Uri.parse(initialUrl ??
+                    'https://digitalaccessibilitytraining.org/catalogue')),
+            initialOptions: InAppWebViewGroupOptions(
+              crossPlatform: InAppWebViewOptions(
+                supportZoom: true,
+                preferredContentMode: UserPreferredContentMode.MOBILE,
+                disableVerticalScroll: check,
+                javaScriptEnabled: false,
+              ),
             ),
+            onWebViewCreated: (InAppWebViewController controller) {
+              _controller = controller;
+            },
+            onProgressChanged:
+                (InAppWebViewController controller, int progress) {
+              setState(() {
+                _progress = progress / 100;
+              });
+            },
           ),
-          onWebViewCreated: (InAppWebViewController controller) {
-            _controller = controller;
-          },
-          onProgressChanged: (InAppWebViewController controller, int progress) {
-            setState(() {
-              _progress = progress / 100;
-            });
-          },
-        ),
         // Add a loading spinner
         if (_currentView == AppView.web && _progress < 1)
           Positioned.fill(
@@ -304,19 +361,20 @@ class MyHomePage extends StatefulWidget {
               ),
             ),
           ),
-          const Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: ResultsContainer(),
-          )
+        const Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: ResultsContainer(),
+        )
       ]),
     );
   }
-    _launchURL(String address) async {
-      final Uri url = Uri.parse(address);
-      if (!await launchUrl(url)) {
-        throw Exception('Could not launch $url');
-      }
+
+  _launchURL(String address) async {
+    final Uri url = Uri.parse(address);
+    if (!await launchUrl(url)) {
+      throw Exception('Could not launch $url');
     }
+  }
 }

@@ -2,10 +2,9 @@ import 'dart:math';
 
 import 'package:dac_colour_contrast/app_provider.dart';
 import 'package:dac_colour_contrast/constants.dart';
+import 'package:dac_colour_contrast/suggestions.dart';
 import 'package:eye_dropper/eye_dropper.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -38,7 +37,6 @@ class _ResultsContainerState extends State<ResultsContainer> {
       luminance1 = luminance2;
       luminance2 = temp;
     }
-
     return (luminance1 + 0.05) / (luminance2 + 0.05);
   }
 
@@ -75,24 +73,59 @@ class _ResultsContainerState extends State<ResultsContainer> {
     });
   }
 
-
+  void _openSuggestionsScreen() {
+    if (_fgColor != null && _bgColor != null) {
+      double ratio = _calculateContrastRatio(_fgColor!, _bgColor!);
+      if (ratio < 4.5) {
+        showModalBottomSheet(
+          context: context,
+          builder: (BuildContext context) {
+            return SuggestionsScreen(
+              fgColor: _fgColor!,
+              bgColor: _bgColor!,
+              contrastRatio: ratio,
+              onColorSelected: (selectedColor, isForeground) {
+                setState(() {
+                  if (isForeground) {
+                    _fgColor = selectedColor;
+                  } else {
+                    _bgColor = selectedColor;
+                  }
+                });
+                Navigator.pop(context);
+              },
+            );
+          },
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Contrast ratio is already compliant.'),
+          ),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select both FG and BG colours.'),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     AppProvider appProvider = Provider.of<AppProvider>(context, listen: true);
-
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.4,
       width: MediaQuery.of(context).size.width,
       child: DraggableScrollableSheet(
-          initialChildSize: isExpanded? 1: 0.2, // 40% of the screen height // Initial height as a fraction of the screen height
-          minChildSize: isExpanded? 1 : 0.2, // Minimum height as a fraction of the screen height
-          maxChildSize: isExpanded? 1 : 0.7, // Maximum height as a fraction of the screen height
+          initialChildSize: isExpanded ? 1 : 0.7,
+          minChildSize: isExpanded ? 1 : 0.7,
+          maxChildSize: isExpanded ? 1 : 0.7,
           builder: (context, scrollController) {
             return Container(
-                width: MediaQuery
-                    .sizeOf(context)
-                    .width,
+                width: MediaQuery.sizeOf(context).width,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: const BorderRadius.only(
@@ -104,7 +137,7 @@ class _ResultsContainerState extends State<ResultsContainer> {
                       color: Colors.grey.withOpacity(0.5),
                       spreadRadius: 2,
                       blurRadius: 5,
-                      offset: const Offset(2, 3), // changes position of shadow
+                      offset: const Offset(2, 3),
                     ),
                   ],
                 ),
@@ -115,7 +148,6 @@ class _ResultsContainerState extends State<ResultsContainer> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // expand draggable sheet button
                           Padding(
                             padding: const EdgeInsets.only(left: 8.0),
                             child: TextButton.icon(
@@ -131,9 +163,18 @@ class _ResultsContainerState extends State<ResultsContainer> {
                                 fontSize: 20,
                                 color: kPrimaryColor),
                           ),
-                          IconButton(
-                              onPressed: _shareResults,
-                              icon: const Icon(Icons.share_rounded)),
+                          Row(
+                            children: [
+                              IconButton(
+                                onPressed: _openSuggestionsScreen,
+                                icon: const Icon(Icons.settings_suggest),
+                              ),
+                              IconButton(
+                                onPressed: _shareResults,
+                                icon: const Icon(Ionicons.share_social),
+                              ),
+                            ],
+                          )
                         ],
                       ),
                       Divider(
@@ -141,10 +182,7 @@ class _ResultsContainerState extends State<ResultsContainer> {
                         thickness: 0.2,
                       ),
                       Padding(
-                        padding: EdgeInsets.only(top: MediaQuery
-                            .of(context)
-                            .size
-                            .width * 0.02),
+                        padding: EdgeInsets.only(top: MediaQuery.of(context).size.width * 0.02),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -243,7 +281,7 @@ class _ResultsContainerState extends State<ResultsContainer> {
           }),
     );
   }
-  }
+}
 
 class WCAGTextResult extends StatelessWidget {
   final double contrastRatio;
@@ -264,7 +302,6 @@ class WCAGTextResult extends StatelessWidget {
 
     bool isAALargeFail = contrastRatio < aaLargeTextThreshold;
     bool isAAALargeFail = contrastRatio < aaaLargeTextThreshold;
-
 
     String aaNormalResult = isAANormalFail ? 'Fail (AA)' : 'Pass (AA)';
     String aaaNormalResult = isAAANormalFail ? 'Fail (AAA)' : 'Pass (AAA)';
@@ -310,7 +347,6 @@ class WCAGTextResult extends StatelessWidget {
     );
   }
 }
-
 
 class PickedColour extends StatelessWidget {
   final Color pickedColour;
