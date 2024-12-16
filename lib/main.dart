@@ -5,19 +5,17 @@ import 'package:provider/provider.dart';
 import 'app_provider.dart';
 import 'home_page.dart';
 
-import 'package:flutter/services.dart';
-
-
 void main() {
   // We need to call it manually,
   // because we going to call setPreferredOrientations()
   // before the runApp() call
   WidgetsFlutterBinding.ensureInitialized();
+  runApp(const MyApp());
 
   // Than we setup preferred orientations,
   // and only after it finished we run our app
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
-      .then((value) => runApp(const MyApp()));
+  // SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+  //     .then((value) => runApp(const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -28,7 +26,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => AppProvider()),],
+        ChangeNotifierProvider(create: (context) => AppProvider()),
+      ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Colour Contrast',
