@@ -1,3 +1,4 @@
+import 'package:dac_colour_contrast/responsive/dimensions.dart';
 import 'package:flutter/cupertino.dart';
 
 class ResponsiveLayout extends StatelessWidget {
@@ -9,7 +10,7 @@ class ResponsiveLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
-      if (constraints.maxWidth < 600) {
+      if (constraints.maxWidth < mobileWidth) {
         return mobileBody;
       } else {
         return tabletBody;

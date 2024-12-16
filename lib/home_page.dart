@@ -14,8 +14,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'app_provider.dart';
 import 'constants.dart';
-
-enum AppView { web, camera, gallery, home }
+import 'enums/enums.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -237,6 +236,24 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ],
             ),
+            // Suggestions Button
+            // IconButton(
+            //   icon: const Icon(Icons.settings_suggest, color: Colors.white),
+            //   onPressed: () {
+            //     // if (_resultsKey.currentState != null) {
+            //     //   _resultsKey.currentState!.openSuggestionsScreen();
+            //     // }
+            //   },
+            // ),
+            // Share Button
+            IconButton(
+              icon: const Icon(Icons.share, color: Colors.white),
+              onPressed: () {
+                // if (_resultsKey.currentState != null) {
+                //   _resultsKey.currentState!.shareResults();
+                // }
+              },
+            ),
           ],
           iconTheme: const IconThemeData(color: Colors.white),
         ),
@@ -329,54 +346,44 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
         ),
-        body: const ResponsiveLayout(
-            mobileBody: MobileBody(), tabletBody: TabletBody())
-        // Stack(children: [
-        //   if ((_currentView == AppView.gallery ||
-        //           _currentView == AppView.camera) &&
-        //       _selectedImage != null)
-        //     Center(child: Image.file(_selectedImage!)),
-        //   if (_currentView == AppView.web)
-        //     InAppWebView(
-        //       initialUrlRequest: URLRequest(
-        //           url: Uri.parse(initialUrl ??
-        //               'https://digitalaccessibilitytraining.org/catalogue')),
-        //       initialOptions: InAppWebViewGroupOptions(
-        //         crossPlatform: InAppWebViewOptions(
-        //           supportZoom: true,
-        //           preferredContentMode: UserPreferredContentMode.MOBILE,
-        //           disableVerticalScroll: check,
-        //           javaScriptEnabled: false,
-        //         ),
-        //       ),
-        //       onWebViewCreated: (InAppWebViewController controller) {
-        //         _controller = controller;
-        //       },
-        //       onProgressChanged:
-        //           (InAppWebViewController controller, int progress) {
-        //         setState(() {
-        //           _progress = progress / 100;
-        //         });
-        //       },
-        //     ),
-        //   // Add a loading spinner
-        //   if (_currentView == AppView.web && _progress < 1)
-        //     Positioned.fill(
-        //       child: Container(
-        //         color: Colors.white,
-        //         child: const Center(
-        //           child: CircularProgressIndicator(),
-        //         ),
-        //       ),
-        //     ),
-        //   const Positioned(
-        //     bottom: 0,
-        //     left: 0,
-        //     right: 0,
-        //     child: ResultsContainer(),
-        //   )
-        // ]),
-        );
+        body: ResponsiveLayout(
+          mobileBody: MobileBody(
+            currentView: _currentView,
+            selectedImage: _selectedImage,
+            initialUrl: initialUrl,
+            isEyeDropperVisible: Provider.of<AppProvider>(context, listen: true)
+                .isEyeDropperVisible,
+            onWebViewCreated: (InAppWebViewController controller) {
+              setState(() {
+                _controller = controller;
+              });
+            },
+            onProgressChanged:
+                (InAppWebViewController controller, int progress) {
+              setState(() {
+                _progress = progress / 100;
+              });
+            },
+          ),
+          tabletBody: TabletBody(
+            currentView: _currentView,
+            selectedImage: _selectedImage,
+            initialUrl: initialUrl,
+            isEyeDropperVisible: Provider.of<AppProvider>(context, listen: true)
+                .isEyeDropperVisible,
+            onWebViewCreated: (InAppWebViewController controller) {
+              setState(() {
+                _controller = controller;
+              });
+            },
+            onProgressChanged:
+                (InAppWebViewController controller, int progress) {
+              setState(() {
+                _progress = progress / 100;
+              });
+            },
+          ),
+        ));
   }
 
   _launchURL(String address) async {

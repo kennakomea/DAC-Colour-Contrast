@@ -1,7 +1,6 @@
-
 import 'package:flutter/cupertino.dart';
 
-import 'home_page.dart';
+import 'enums/enums.dart';
 
 class AppProvider extends ChangeNotifier {
   AppView _currentView = AppView.home;

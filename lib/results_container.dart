@@ -125,7 +125,6 @@ class _ResultsContainerState extends State<ResultsContainer> {
     final mediaQuery = MediaQuery.of(context);
     final screenWidth = mediaQuery.size.width;
     final screenHeight = mediaQuery.size.height;
-    final textScale = mediaQuery.textScaler;
 
     return SizedBox(
       height: screenHeight * 0.5,
@@ -156,41 +155,16 @@ class _ResultsContainerState extends State<ResultsContainer> {
                   controller: scrollController,
                   child: Column(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
-                            child: TextButton.icon(
-                              onPressed: toggleExpansion,
-                              icon: Icon(isExpanded
-                                  ? Icons.expand_more
-                                  : Icons.expand_less),
-                              label: Text(isExpanded ? 'Collapse' : 'Expand'),
-                            ),
-                          ),
-                          const Text(
-                            'Results',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                                color: kPrimaryColor),
-                          ),
-                          Row(
-                            children: [
-                              IconButton(
-                                onPressed: _openSuggestionsScreen,
-                                icon: const Icon(Icons.settings_suggest),
-                                iconSize: 24,
-                              ),
-                              IconButton(
-                                onPressed: _shareResults,
-                                icon: const Icon(Ionicons.share_social),
-                                iconSize: 24,
-                              ),
-                            ],
-                          )
-                        ],
+                      const Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 8.0, vertical: 8.0),
+                        child: Text(
+                          'Results',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              color: kPrimaryColor),
+                        ),
                       ),
                       Divider(
                         color: kPrimaryColor.withOpacity(0.5),
@@ -198,7 +172,7 @@ class _ResultsContainerState extends State<ResultsContainer> {
                       ),
                       Padding(
                         padding: EdgeInsets.only(
-                            top: MediaQuery.of(context).size.width * 0.02),
+                            top: MediaQuery.of(context).size.height * 0.02),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -336,6 +310,8 @@ class WCAGTextResult extends StatelessWidget {
     TextStyle passTextStyle = const TextStyle(color: Colors.green);
 
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -345,7 +321,7 @@ class WCAGTextResult extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 'Normal',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
               ),
             ),
             Text(aaNormalResult,
@@ -361,7 +337,7 @@ class WCAGTextResult extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 'Large',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
               ),
             ),
             Text(aaLargeResult,
