@@ -45,9 +45,15 @@ class _ResultsContainerState extends State<ResultsContainer> {
     double green = color.green / 255.0;
     double blue = color.blue / 255.0;
 
-    red = red <= 0.03928 ? red / 12.92 : pow((red + 0.055) / 1.055, 2.4).toDouble();
-    green = green <= 0.03928 ? green / 12.92 : pow((green + 0.055) / 1.055, 2.4).toDouble();
-    blue = blue <= 0.03928 ? blue / 12.92 : pow((blue + 0.055) / 1.055, 2.4).toDouble();
+    red = red <= 0.03928
+        ? red / 12.92
+        : pow((red + 0.055) / 1.055, 2.4).toDouble();
+    green = green <= 0.03928
+        ? green / 12.92
+        : pow((green + 0.055) / 1.055, 2.4).toDouble();
+    blue = blue <= 0.03928
+        ? blue / 12.92
+        : pow((blue + 0.055) / 1.055, 2.4).toDouble();
 
     return 0.2126 * red + 0.7152 * green + 0.0722 * blue;
   }
@@ -116,16 +122,21 @@ class _ResultsContainerState extends State<ResultsContainer> {
   @override
   Widget build(BuildContext context) {
     AppProvider appProvider = Provider.of<AppProvider>(context, listen: true);
+    final mediaQuery = MediaQuery.of(context);
+    final screenWidth = mediaQuery.size.width;
+    final screenHeight = mediaQuery.size.height;
+    final textScale = mediaQuery.textScaler;
+
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.4,
-      width: MediaQuery.of(context).size.width,
+      height: screenHeight * 0.5,
+      width: screenWidth,
       child: DraggableScrollableSheet(
           initialChildSize: isExpanded ? 1 : 0.7,
-          minChildSize: isExpanded ? 1 : 0.7,
-          maxChildSize: isExpanded ? 1 : 0.7,
+          minChildSize: isExpanded ? 1 : 0.1,
+          maxChildSize: isExpanded ? 1 : 0.9,
           builder: (context, scrollController) {
             return Container(
-                width: MediaQuery.sizeOf(context).width,
+                width: screenWidth,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: const BorderRadius.only(
@@ -152,7 +163,9 @@ class _ResultsContainerState extends State<ResultsContainer> {
                             padding: const EdgeInsets.only(left: 8.0),
                             child: TextButton.icon(
                               onPressed: toggleExpansion,
-                              icon: Icon(isExpanded ? Icons.expand_more : Icons.expand_less),
+                              icon: Icon(isExpanded
+                                  ? Icons.expand_more
+                                  : Icons.expand_less),
                               label: Text(isExpanded ? 'Collapse' : 'Expand'),
                             ),
                           ),
@@ -168,10 +181,12 @@ class _ResultsContainerState extends State<ResultsContainer> {
                               IconButton(
                                 onPressed: _openSuggestionsScreen,
                                 icon: const Icon(Icons.settings_suggest),
+                                iconSize: 24,
                               ),
                               IconButton(
                                 onPressed: _shareResults,
                                 icon: const Icon(Ionicons.share_social),
+                                iconSize: 24,
                               ),
                             ],
                           )
@@ -182,16 +197,19 @@ class _ResultsContainerState extends State<ResultsContainer> {
                         thickness: 0.2,
                       ),
                       Padding(
-                        padding: EdgeInsets.only(top: MediaQuery.of(context).size.width * 0.02),
+                        padding: EdgeInsets.only(
+                            top: MediaQuery.of(context).size.width * 0.02),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Expanded(
                               child: PickedColour(
                                 icon: IconButton(
                                     onPressed: () {
                                       appProvider.isEyeDropperVisible = true;
-                                      EyeDropper.enableEyeDropper(context, (color) {
+                                      EyeDropper.enableEyeDropper(context,
+                                          (color) {
                                         setState(() {
                                           _fgColor = color;
                                         });
@@ -200,13 +218,14 @@ class _ResultsContainerState extends State<ResultsContainer> {
                                     },
                                     style: ButtonStyle(
                                       backgroundColor:
-                                      MaterialStateProperty.all(Colors.white),
+                                          MaterialStateProperty.all(
+                                              Colors.white),
                                       shape: MaterialStateProperty.all(
                                           RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(20),
-                                            side: const BorderSide(
-                                                color: kPrimaryColor, width: 2),
-                                          )),
+                                        borderRadius: BorderRadius.circular(20),
+                                        side: const BorderSide(
+                                            color: kPrimaryColor, width: 2),
+                                      )),
                                     ),
                                     icon: const Icon(Ionicons.eyedrop_outline)),
                                 pickedColour: _fgColor ?? Colors.deepOrange,
@@ -222,20 +241,22 @@ class _ResultsContainerState extends State<ResultsContainer> {
                               children: [
                                 Text(
                                   _fgColor != null && _bgColor != null
-                                      ? '${_calculateContrastRatio(
-                                      _fgColor!, _bgColor!).toStringAsFixed(2)}:1'
+                                      ? '${_calculateContrastRatio(_fgColor!, _bgColor!).toStringAsFixed(2)}:1'
                                       : 'N/A',
                                   style: const TextStyle(
-                                      fontWeight: FontWeight.bold, fontSize: 26),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 26),
                                 ),
                                 const SizedBox(height: 10),
                                 Row(
                                   children: [
                                     _fgColor != null && _bgColor != null
                                         ? WCAGTextResult(
-                                        contrastRatio: _calculateContrastRatio(
-                                            _fgColor!, _bgColor!))
-                                        : const WCAGTextResult(contrastRatio: 0),
+                                            contrastRatio:
+                                                _calculateContrastRatio(
+                                                    _fgColor!, _bgColor!))
+                                        : const WCAGTextResult(
+                                            contrastRatio: 0),
                                     const SizedBox(width: 15),
                                   ],
                                 ),
@@ -246,7 +267,8 @@ class _ResultsContainerState extends State<ResultsContainer> {
                                 icon: IconButton(
                                     onPressed: () {
                                       appProvider.isEyeDropperVisible = true;
-                                      EyeDropper.enableEyeDropper(context, (color) {
+                                      EyeDropper.enableEyeDropper(context,
+                                          (color) {
                                         setState(() {
                                           _bgColor = color;
                                         });
@@ -255,13 +277,14 @@ class _ResultsContainerState extends State<ResultsContainer> {
                                     },
                                     style: ButtonStyle(
                                       backgroundColor:
-                                      MaterialStateProperty.all(Colors.white),
+                                          MaterialStateProperty.all(
+                                              Colors.white),
                                       shape: MaterialStateProperty.all(
                                           RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(20),
-                                            side: const BorderSide(
-                                                color: kPrimaryColor, width: 2),
-                                          )),
+                                        borderRadius: BorderRadius.circular(20),
+                                        side: const BorderSide(
+                                            color: kPrimaryColor, width: 2),
+                                      )),
                                     ),
                                     icon: const Icon(Ionicons.eyedrop)),
                                 pickedColour: _bgColor ?? Colors.deepOrange,
@@ -325,8 +348,10 @@ class WCAGTextResult extends StatelessWidget {
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
             ),
-            Text(aaNormalResult, style: isAANormalFail ? failTextStyle : passTextStyle),
-            Text(aaaNormalResult, style: isAAANormalFail ? failTextStyle : passTextStyle),
+            Text(aaNormalResult,
+                style: isAANormalFail ? failTextStyle : passTextStyle),
+            Text(aaaNormalResult,
+                style: isAAANormalFail ? failTextStyle : passTextStyle),
           ],
         ),
         const SizedBox(width: 15),
@@ -339,8 +364,10 @@ class WCAGTextResult extends StatelessWidget {
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
             ),
-            Text(aaLargeResult, style: isAALargeFail ? failTextStyle : passTextStyle),
-            Text(aaaLargeResult, style: isAAALargeFail ? failTextStyle : passTextStyle),
+            Text(aaLargeResult,
+                style: isAALargeFail ? failTextStyle : passTextStyle),
+            Text(aaaLargeResult,
+                style: isAAALargeFail ? failTextStyle : passTextStyle),
           ],
         ),
       ],
@@ -365,7 +392,7 @@ class PickedColour extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.01),
+      padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.01),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
