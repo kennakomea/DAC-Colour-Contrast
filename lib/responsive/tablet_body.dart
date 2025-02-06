@@ -84,9 +84,10 @@ class _TabletBodyState extends State<TabletBody> {
           ),
         ),
 
-        // Results Panel (25% of width)
+        // Results Panel (35% of width)
         SizedBox(
-          width: 350, // Fixed width for results panel
+          width: MediaQuery.of(context).size.width *
+              0.35, // Flexible width for results panel
           child: Container(
             margin: EdgeInsets.zero,
             child: const TabletResultsContainer(),

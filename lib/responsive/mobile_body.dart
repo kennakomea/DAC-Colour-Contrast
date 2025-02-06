@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 import '../enums/enums.dart';
-import '../results_container.dart';
+import '../mobile_results_container.dart';
 
 class MobileBody extends StatefulWidget {
   final AppView currentView;

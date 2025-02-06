@@ -1,30 +1,52 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+import 'package:dac_colour_contrast/app_provider.dart';
+import 'package:dac_colour_contrast/mobile_results_container.dart';
+import 'package:dac_colour_contrast/wcgag_text_result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:dac_colour_contrast/main.dart';
+import 'package:ionicons/ionicons.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Displays correct contrast ratio when colors are set',
+      (WidgetTester tester) async {
+    // Create and configure mock AppProvider
+    final mockAppProvider = AppProvider()
+      ..setFgColor(const Color(0xFF000000)) // Use method to set color
+      ..setBgColor(const Color(0xFFFFFFFF)); // Use method to set color
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Expected values
+    const expectedRatio = '21.00:1';
+    const expectedFgHex = '#FF000000';
+    const expectedBgHex = '#FFFFFFFF';
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // Build the test widget
+    await tester.pumpWidget(
+      MaterialApp(
+        home: ChangeNotifierProvider<AppProvider>.value(
+          value: mockAppProvider,
+          child: const Scaffold(
+            body: ResultsContainer(),
+          ),
+        ),
+      ),
+    );
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Wait for animations to settle
+    await tester.pumpAndSettle();
+
+    // Verify contrast ratio display
+    expect(find.text(expectedRatio), findsOneWidget);
+
+    // Verify color hex codes
+    expect(find.text(expectedFgHex), findsOneWidget);
+    expect(find.text(expectedBgHex), findsOneWidget);
+
+    // Verify WCAG result widget presence
+    expect(find.byType(WCAGTextResult), findsOneWidget);
+
+    // Verify main UI components
+    expect(find.text('Contrast Results'), findsOneWidget);
+    expect(find.byIcon(Icons.keyboard_arrow_down), findsOneWidget);
+    expect(find.byIcon(Ionicons.share_social), findsOneWidget);
   });
 }

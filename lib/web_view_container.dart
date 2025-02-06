@@ -1,7 +1,7 @@
-import 'package:dac_colour_contrast/results_container.dart';
+import 'package:dac_colour_contrast/mobile_results_container.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class WebViewContainer extends StatefulWidget {
   final String? initialUrl;
@@ -37,7 +37,6 @@ class _WebViewContainerState extends State<WebViewContainer> {
         initialUrlRequest: URLRequest(url: Uri.parse(url)),
         initialOptions: InAppWebViewGroupOptions(
           crossPlatform: InAppWebViewOptions(
-
             javaScriptEnabled: true,
           ),
         ),
@@ -50,12 +49,12 @@ class _WebViewContainerState extends State<WebViewContainer> {
           });
         },
       ),
-        const Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: ResultsContainer(),
-        )
+      const Positioned(
+        bottom: 0,
+        left: 0,
+        right: 0,
+        child: ResultsContainer(),
+      )
     ]));
   }
 }

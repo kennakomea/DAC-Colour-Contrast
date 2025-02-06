@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 class ColorUtils {
   /// Calculates the contrast ratio between two colors
   static double calculateContrastRatio(Color color1, Color color2) {
-    double luminance1 = _calculateLuminance(color1);
-    double luminance2 = _calculateLuminance(color2);
+    double luminance1 = calculateLuminance(color1);
+    double luminance2 = calculateLuminance(color2);
 
     // Ensure luminance1 is the lighter color (higher luminance)
     if (luminance1 < luminance2) {
@@ -20,7 +20,7 @@ class ColorUtils {
   }
 
   /// Calculates the relative luminance of a color
-  static double _calculateLuminance(Color color) {
+  static double calculateLuminance(Color color) {
     double red = color.red / 255.0;
     double green = color.green / 255.0;
     double blue = color.blue / 255.0;

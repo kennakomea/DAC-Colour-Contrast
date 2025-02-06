@@ -9,6 +9,7 @@ import 'package:dac_colour_contrast/web_view_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -48,6 +49,47 @@ class _MyHomePageState extends State<MyHomePage> {
         ));
       }
     });
+  }
+
+  String _getAppBarTitle() {
+    final appProvider = Provider.of<AppProvider>(context, listen: true);
+    final bool isTablet = MediaQuery.of(context).size.width >= 600;
+
+    if (appProvider.isEyeDropperVisible) {
+      return 'Pick Color';
+    }
+
+    switch (_currentView) {
+      case AppView.web:
+        if (_progress < 1) {
+          return isTablet
+              ? 'Loading... ${(_progress * 100).toInt()}%'
+              : 'Loading...';
+        }
+        try {
+          final url = Uri.parse(initialUrl ?? 'Web');
+          return isTablet ? 'Select Colors from Web' : 'Web Colors';
+        } catch (_) {
+          return isTablet ? 'Select Colors from Web' : 'Web Colors';
+        }
+
+      case AppView.camera:
+        return isTablet
+            ? (_selectedImage != null
+                ? 'Analyze Camera Image'
+                : 'Take Photo to Analyze')
+            : (_selectedImage != null ? 'Camera Image' : 'Take Photo');
+
+      case AppView.gallery:
+        return isTablet
+            ? (_selectedImage != null
+                ? 'Analyze Gallery Image'
+                : 'Choose Image to Analyze')
+            : (_selectedImage != null ? 'Gallery Image' : 'Choose Image');
+
+      default:
+        return isTablet ? 'Color Contrast' : 'Contrast';
+    }
   }
 
   void _pickImageFromCamera() async {
@@ -165,7 +207,7 @@ class _MyHomePageState extends State<MyHomePage> {
           centerTitle: true,
           backgroundColor: Theme.of(context).colorScheme.primary,
           title: Text(
-            widget.title,
+            _getAppBarTitle(),
             style: const TextStyle(
                 color: Colors.white, fontWeight: FontWeight.bold),
           ),
@@ -237,23 +279,25 @@ class _MyHomePageState extends State<MyHomePage> {
               ],
             ),
             // Suggestions Button
-            // IconButton(
-            //   icon: const Icon(Icons.settings_suggest, color: Colors.white),
-            //   onPressed: () {
-            //     // if (_resultsKey.currentState != null) {
-            //     //   _resultsKey.currentState!.openSuggestionsScreen();
-            //     // }
-            //   },
-            // ),
-            // Share Button
             IconButton(
-              icon: const Icon(Icons.share, color: Colors.white),
+              icon: const Icon(Icons.settings_suggest, color: Colors.white),
               onPressed: () {
-                // if (_resultsKey.currentState != null) {
-                //   _resultsKey.currentState!.shareResults();
-                // }
+                final appProvider =
+                    Provider.of<AppProvider>(context, listen: false);
+                appProvider.checkAndShowSuggestions(context);
               },
             ),
+            // Share Button - only shown on tablet
+            if (MediaQuery.of(context).size.width >=
+                600) // Standard tablet breakpoint
+              IconButton(
+                icon: const Icon(Ionicons.share_social, color: Colors.white),
+                onPressed: () {
+                  final appProvider =
+                      Provider.of<AppProvider>(context, listen: false);
+                  appProvider.shareResults();
+                },
+              ),
           ],
           iconTheme: const IconThemeData(color: Colors.white),
         ),
@@ -285,7 +329,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     const Text(
                       semanticsLabel: 'App version 1.2.7',
-                      'v1.2.7',
+                      'v1.3.0',
                       style: TextStyle(color: Colors.white),
                     ),
                   ],
