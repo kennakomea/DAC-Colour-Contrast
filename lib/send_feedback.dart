@@ -42,6 +42,8 @@ class RequestFeatureScreen extends StatelessWidget {
 class FeedbackForm extends StatefulWidget {
   const FeedbackForm({super.key});
 
+  //Subclasses should override this method to return a newly created
+  // instance of their associated [State] subclass:
   @override
   State<FeedbackForm> createState() => _FeedbackFormState();
 }
