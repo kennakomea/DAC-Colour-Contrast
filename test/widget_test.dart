@@ -19,7 +19,7 @@ void main() {
     const expectedFgHex = '#FF000000';
     const expectedBgHex = '#FFFFFFFF';
 
-    // Build the test widget
+    // Build the test widget for mobile results container
     await tester.pumpWidget(
       MaterialApp(
         home: ChangeNotifierProvider<AppProvider>.value(
