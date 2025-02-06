@@ -44,7 +44,7 @@ class _ResultsContainerState extends State<ResultsContainer> {
     final screenWidth = mediaQuery.size.width;
     final screenHeight = mediaQuery.size.height;
     final padding = screenWidth * 0.02;
-    final textScaleFactor = mediaQuery.textScaleFactor;
+    final textScaler = mediaQuery.textScaler;
 
     return Semantics(
       label: 'Color Contrast Analysis Panel',
@@ -91,7 +91,7 @@ class _ResultsContainerState extends State<ResultsContainer> {
                                   ? Icons.keyboard_arrow_down
                                   : Icons.keyboard_arrow_up,
                               color: kPrimaryColor,
-                              size: 24 * textScaleFactor,
+                              size: textScaler.scale(24),
                             ),
                             onPressed: _toggleExpansion,
                           ),
@@ -102,7 +102,7 @@ class _ResultsContainerState extends State<ResultsContainer> {
                             child: Text(
                               'Contrast Results',
                               style: TextStyle(
-                                fontSize: 18 * textScaleFactor,
+                                fontSize: textScaler.scale(18),
                                 fontWeight: FontWeight.bold,
                                 color: kPrimaryColor,
                               ),
@@ -116,7 +116,7 @@ class _ResultsContainerState extends State<ResultsContainer> {
                             icon: Icon(
                               Ionicons.share_social,
                               color: kPrimaryColor,
-                              size: 24 * textScaleFactor,
+                              size: textScaler.scale(24),
                             ),
                             onPressed: () => _handleShare(appProvider),
                           ),
@@ -154,9 +154,9 @@ class _ResultsContainerState extends State<ResultsContainer> {
                                   true,
                                   Ionicons.eyedrop_outline,
                                   screenWidth,
-                                  textScaleFactor,
+                                  textScaler,
                                 ),
-                                SizedBox(width: 20),
+                                const SizedBox(width: 20),
                                 _buildColorPicker(
                                   context,
                                   'Background',
@@ -164,14 +164,14 @@ class _ResultsContainerState extends State<ResultsContainer> {
                                   false,
                                   Ionicons.eyedrop,
                                   screenWidth,
-                                  textScaleFactor,
+                                  textScaler,
                                 ),
                               ],
                             ),
 
                             SizedBox(height: padding * 1.5),
 
-                            _buildContrastDisplay(appProvider, textScaleFactor),
+                            _buildContrastDisplay(appProvider, textScaler),
 
                             if (appProvider.fgColor != null &&
                                 appProvider.bgColor != null)
@@ -205,9 +205,9 @@ class _ResultsContainerState extends State<ResultsContainer> {
     bool isForeground,
     IconData icon,
     double screenWidth,
-    double textScaleFactor,
+    TextScaler textScaler,
   ) {
-    final double boxSize = (screenWidth * 0.15) * textScaleFactor;
+    final double boxSize = (screenWidth * 0.15) * textScaler.scale(1.0);
     final hexColor = ColorUtils.toHex(color);
 
     return Semantics(
@@ -246,22 +246,22 @@ class _ResultsContainerState extends State<ResultsContainer> {
               ),
             ),
           ),
-          SizedBox(height: 8 * textScaleFactor),
+          SizedBox(height: textScaler.scale(8)),
           FittedBox(
             child: Text(
               label,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 14 * textScaleFactor,
+                fontSize: textScaler.scale(14),
               ),
             ),
           ),
-          SizedBox(height: 4 * textScaleFactor),
+          SizedBox(height: textScaler.scale(4)),
           FittedBox(
             child: Text(
               hexColor,
               style: TextStyle(
-                fontSize: 12 * textScaleFactor,
+                fontSize: textScaler.scale(12),
                 fontFamily: 'monospace',
                 color: Colors.grey[600],
               ),
@@ -272,8 +272,7 @@ class _ResultsContainerState extends State<ResultsContainer> {
     );
   }
 
-  Widget _buildContrastDisplay(
-      AppProvider appProvider, double textScaleFactor) {
+  Widget _buildContrastDisplay(AppProvider appProvider, TextScaler textScaler) {
     final hasColors =
         appProvider.fgColor != null && appProvider.bgColor != null;
     final ratio = hasColors
@@ -293,7 +292,7 @@ class _ResultsContainerState extends State<ResultsContainer> {
             child: Text(
               hasColors ? '${ratio.toStringAsFixed(2)}:1' : 'N/A',
               style: TextStyle(
-                fontSize: 28 * textScaleFactor,
+                fontSize: textScaler.scale(28),
                 fontWeight: FontWeight.bold,
                 color: hasColors
                     ? (ratio >= 4.5 ? Colors.green : Colors.red)
@@ -301,12 +300,12 @@ class _ResultsContainerState extends State<ResultsContainer> {
               ),
             ),
           ),
-          SizedBox(height: 4 * textScaleFactor),
+          SizedBox(height: textScaler.scale(4)),
           FittedBox(
             child: Text(
               'Contrast Ratio',
               style: TextStyle(
-                fontSize: 12 * textScaleFactor,
+                fontSize: textScaler.scale(12),
                 color: Colors.grey[600],
               ),
             ),
