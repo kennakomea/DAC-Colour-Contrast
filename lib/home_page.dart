@@ -67,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
               : 'Loading...';
         }
         try {
-          final url = Uri.parse(initialUrl ?? 'Web');
+          //final url = Uri.parse(initialUrl ?? 'Web');
           return isTablet ? 'Select Colors from Web' : 'Web Colors';
         } catch (_) {
           return isTablet ? 'Select Colors from Web' : 'Web Colors';
@@ -93,8 +93,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _pickImageFromCamera() async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.camera);
 
     if (image != null) {
       setState(() {
@@ -109,8 +109,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _pickImageFromGallery() async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
       setState(() {
@@ -346,7 +346,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   // Navigate to the second screen using a named route.
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => HelpScreen()),
+                    MaterialPageRoute(builder: (context) => const HelpScreen()),
                   );
                 },
               ),
@@ -359,7 +359,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => RequestFeatureScreen()));
+                          builder: (context) => const RequestFeatureScreen()));
                 },
               ),
               const Divider(

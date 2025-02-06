@@ -1,6 +1,5 @@
 import 'package:dac_colour_contrast/mobile_results_container.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class WebViewContainer extends StatefulWidget {
@@ -13,7 +12,7 @@ class WebViewContainer extends StatefulWidget {
 }
 
 class _WebViewContainerState extends State<WebViewContainer> {
-  static const MethodChannel _methodChannel = MethodChannel('color_picker');
+  //static const MethodChannel _methodChannel = MethodChannel('color_picker');
   InAppWebViewController? _controller;
 
   InAppWebViewController get webViewController => _controller!;
@@ -24,8 +23,6 @@ class _WebViewContainerState extends State<WebViewContainer> {
   void initState() {
     super.initState();
   }
-
-  double _progress = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +42,7 @@ class _WebViewContainerState extends State<WebViewContainer> {
         },
         onProgressChanged: (InAppWebViewController controller, int progress) {
           setState(() {
-            _progress = progress / 100; // Convert progress to a percentage
+            // Convert progress to a percentage
           });
         },
       ),

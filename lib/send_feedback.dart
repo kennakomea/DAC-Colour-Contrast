@@ -1,29 +1,35 @@
 import 'package:dac_colour_contrast/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:flutter/services.dart';
-
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 
 class RequestFeatureScreen extends StatelessWidget {
+  const RequestFeatureScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text("Feedback", style: TextStyle(color: Colors.white)),
-        backgroundColor: kPrimaryColor
-      ),
+          iconTheme: const IconThemeData(color: Colors.white),
+          title: const Text("Feedback", style: TextStyle(color: Colors.white)),
+          backgroundColor: kPrimaryColor),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
-          children: [
-            const Padding(
+          children: const [
+            Padding(
               padding: EdgeInsets.symmetric(vertical: 8.0),
-              child: Text('Help us improve', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: kPrimaryColor)),
+              child: Text('Help us improve',
+                  style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: kPrimaryColor)),
             ),
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(bottom: 20.0),
-              child: Text('Whether you have a feature request or want to report a bug, your feedback is valuable to us.', style: TextStyle(fontSize: 16)),
+              child: Text(
+                  'Whether you have a feature request or want to report a bug, your feedback is valuable to us.',
+                  style: TextStyle(fontSize: 16)),
             ),
             FeedbackForm(),
           ],
@@ -34,8 +40,12 @@ class RequestFeatureScreen extends StatelessWidget {
 }
 
 class FeedbackForm extends StatefulWidget {
+  const FeedbackForm({super.key});
+
+  //Subclasses should override this method to return a newly created
+  // instance of their associated [State] subclass:
   @override
-  _FeedbackFormState createState() => _FeedbackFormState();
+  State<FeedbackForm> createState() => _FeedbackFormState();
 }
 
 class _FeedbackFormState extends State<FeedbackForm> {
@@ -91,11 +101,13 @@ class _FeedbackFormState extends State<FeedbackForm> {
             child: ElevatedButton(
               onPressed: () => _submitFeedback(),
               style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4)),
                 minimumSize: const Size(double.infinity, 50),
                 backgroundColor: kPrimaryColor,
               ),
-              child: const Text('Submit', style: TextStyle(color: Colors.white)),
+              child:
+                  const Text('Submit', style: TextStyle(color: Colors.white)),
             ),
           ),
         ),
@@ -124,21 +136,24 @@ class _FeedbackFormState extends State<FeedbackForm> {
       );
       await FlutterEmailSender.send(email);
     } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to send feedback. ${error.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+    }
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-         SnackBar(
-          content: Text('Failed to send feedback. ${error.toString()}'),
-          backgroundColor: Colors.red,
+        const SnackBar(
+          content: Text('Thank you for your feedback!'),
+          backgroundColor: Colors.green,
         ),
       );
-      return;
     }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Thank you for your feedback!'),
-        backgroundColor: Colors.green,
-      ),
-    );
     _feedbackController.clear();
   }
 }
