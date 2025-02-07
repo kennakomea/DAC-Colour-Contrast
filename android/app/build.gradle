@@ -61,13 +61,13 @@ android {
         debug {
             keyAlias keystoreProperties['keyAlias']
             keyPassword keystoreProperties['keyPassword']
-            storeFile file(keystoreProperties['storeFile'])
+            storeFile file("key.jks")
             storePassword keystoreProperties['storePassword']
         }
         release {
             keyAlias keystoreProperties['keyAlias']
             keyPassword keystoreProperties['keyPassword']
-            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            storeFile file("key.jks")
             storePassword keystoreProperties['storePassword']
         }
     }
